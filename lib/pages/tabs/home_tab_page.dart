@@ -39,13 +39,20 @@ class _HomeTabPageState extends State<HomeTabPage> {
                             children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) {
                               return Container(child:
                                   LayoutBuilder(builder: (context, constrains) {
+                                final double boxWidth = constrains.maxWidth / 5;
                                 return Column(
                                   children: <Widget>[
                                     Container(
-                                        width: constrains.maxWidth / 5,
-                                        height: constrains.maxWidth / 5,
-                                        child: Image.asset(
-                                            'assets/icon/no-results.png')),
+                                        width: boxWidth,
+                                        child: Image(
+                                            width: boxWidth * 0.8,
+                                            height: boxWidth * 0.8,
+                                            image: AssetImage(
+                                                'assets/icon/no-results.png'))),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 6.0),
+                                      child: new Text("$i"),
+                                    )
                                   ],
                                 );
                               }));
