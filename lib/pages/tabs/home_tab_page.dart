@@ -8,13 +8,27 @@ class HomeTabPage extends StatefulWidget {
 }
 
 class _HomeTabPageState extends State<HomeTabPage> {
+  var categories = List();
+  var currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
     Map<String, dynamic> params = {'page': 1, 'pageSize': 10};
-    GoodsApi.recommend(params)
-        .then((res) => {print(res)})
-        .catchError((err) => {print(err)});
+    GoodsApi.recommend(params).then((res) {
+      categories = [];
+      var list = res['extra']['category'] as List;
+      var len = list.length;
+      if (len > 5) {
+        for (var i = 0; i < len; i += 5) {
+          categories.add(list.sublist(i, i + 5));
+        }
+      } else {
+        categories.add(list);
+      }
+    }).catchError((err) {
+      print(err);
+    });
   }
 
   @override
@@ -34,9 +48,11 @@ class _HomeTabPageState extends State<HomeTabPage> {
                       width: double.infinity,
                       child: Swiper(
                         itemBuilder: (BuildContext context, int index) {
+                          // print(currentIndex);
                           return Wrap(
                             runSpacing: 5,
-                            children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) {
+                            children:
+                                (categories[currentIndex] as List).map((item) {
                               return Container(child:
                                   LayoutBuilder(builder: (context, constrains) {
                                 final double boxWidth = constrains.maxWidth / 5;
@@ -47,11 +63,11 @@ class _HomeTabPageState extends State<HomeTabPage> {
                                         child: Image(
                                             width: boxWidth * 0.8,
                                             height: boxWidth * 0.8,
-                                            image: AssetImage(
-                                                'assets/icon/no-results.png'))),
+                                            image: NetworkImage(
+                                                item['categoryImgUrl']))),
                                     Padding(
                                       padding: EdgeInsets.only(top: 6.0),
-                                      child: new Text("$i"),
+                                      child: new Text(item['categoryName']),
                                     )
                                   ],
                                 );
@@ -59,7 +75,14 @@ class _HomeTabPageState extends State<HomeTabPage> {
                             }).toList(),
                           );
                         },
-                        itemCount: 10,
+                        loop: false,
+                        onIndexChanged: (int index) {
+                          print(index);
+                          currentIndex = index;
+                        },
+                        itemCount: categories.length,
+                        outer: true,
+                        pagination: SwiperPagination(),
                       )),
                 ])));
   }
